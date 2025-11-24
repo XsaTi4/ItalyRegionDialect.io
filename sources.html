@@ -36,11 +36,34 @@ footer {
     margin-top:30px;
 }
 
+/* New styles for the button */
+.back-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+    margin-bottom: 0;
+}
+.back-button {
+    padding: 10px 26px;
+    font-size: 1em;
+    background: #4b8bbe;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration:none;
+    transition: background 0.2s;
+}
+.back-button:hover {
+    background: #36689c;
+}
+
 /* MOBILE */
 @media screen and (max-width:768px) {
     header { padding:15px 5px; }
     h1 { font-size:1.3em; }
     main { padding:0 10px; }
+    .back-button { font-size:0.95em; padding:8px 20px; }
 }
 </style>
 </head>
@@ -60,6 +83,10 @@ footer {
 <li><a href="https://www.treccani.it/" target="_blank">Treccani – Itālijas enciklopēdija</a></li>
 </ul>
 </main>
+
+<div class="back-button-container">
+    <a href="index.html" class="back-button">atpakaļ</a>
+</div>
 
 <footer>
 Autors: XsaTi | Visas tiesības aizsargātas
