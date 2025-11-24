@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Itālijas dialekti</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -14,51 +15,52 @@ body {
 
 /* ===== HEADER ===== */
 header {
-    background:#4b8bbe;
-    color:white;
-    text-align:center;
-    padding:20px;
-    position:relative;
+    background: #4b8bbe;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    position: relative;
 }
-h1 { margin:0; }
+h1 { margin: 0; font-size:1.6em; }
 
 #dialectsBtn {
-    position:absolute;
-    right:20px;
-    top:20px;
-    padding:10px 15px;
-    background:white;
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 10px 15px;
+    background:#fff;
     color:#4b8bbe;
     border:none;
     border-radius:5px;
     cursor:pointer;
     font-weight:bold;
     transition:0.3s;
+    z-index:1000;
 }
 #dialectsBtn:hover { background:#e0e0e0; }
 
 /* ===== MAP ===== */
 #map {
-    height:80vh;
-    width:95%;
-    margin:20px auto;
+    height: 80vh;
+    width: 95%;
+    margin: 20px auto;
     border-radius:10px;
     box-shadow:0 0 15px rgba(0,0,0,0.2);
 }
 
 /* ===== SIDE PANEL ===== */
 #sidePanel {
-    position:fixed;
-    top:0;
-    right:-400px;
-    width:350px;
-    height:100%;
-    background:white;
-    box-shadow:-5px 0 15px rgba(0,0,0,0.3);
-    padding:20px;
-    transition:0.4s ease;
-    overflow-y:auto;
-    z-index:999;
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100%;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    padding: 20px;
+    transition: 0.4s ease;
+    overflow-y: auto;
+    z-index: 2000;
 }
 #sidePanel.show { right:0; }
 
@@ -76,40 +78,34 @@ h1 { margin:0; }
 
 /* ===== POPUP ===== */
 .custom-popup {
-    font-size:14px;
-    line-height:1.3;
+    font-size: 14px;
+    line-height: 1.3;
 }
 .custom-popup h3 {
-    margin:0 0 5px;
-    color:#4b8bbe;
+    margin: 0 0 5px;
+    color: #4b8bbe;
 }
 
 /* ===== FOOTER ===== */
 footer {
-    text-align:center;
-    padding:15px;
-    background:#222;
-    color:#eee;
-    font-size:0.9em;
+    text-align: center;
+    padding: 15px;
+    background: #222;
+    color: #eee;
+    font-size: 0.9em;
 }
-footer a { color:#4b8bbe; }
 
-/* ===== MOBILE ADAPTATION ===== */
+/* ===== MOBILE ===== */
 @media screen and (max-width:768px) {
-    header { padding:15px; }
-    #dialectsBtn {
-        position:relative;
-        display:block;
-        margin:10px auto 0 auto;
-        font-size:14px;
-        padding:8px 12px;
-    }
-    #map { height:60vh; width:95%; margin:15px auto; }
-    #sidePanel { width:100%; right:-100%; }
-    #sidePanel.show { right:0; }
+    header { padding:15px 5px; }
+    h1 { font-size:1.3em; }
+    #dialectsBtn { top:10px; right:10px; padding:8px 12px; }
+    #map { height:60vh; width:96%; margin:10px auto; }
+    #sidePanel { width:90%; padding:15px; }
 }
 </style>
 </head>
+
 <body>
 
 <header>
@@ -120,10 +116,7 @@ footer a { color:#4b8bbe; }
 <div id="map"></div>
 
 <footer>
-Dati no: 
-<a href="https://www.istat.it/en/" target="_blank">ISTAT</a> | 
-<a href="https://www.ethnologue.com/" target="_blank">Ethnologue</a> | 
-<a href="sources.html">Papildu avoti</a> | Autors: XsaTi
+Dati un avoti: <a href="sources.html" style="color:#4b8bbe;">sources.html</a> | Autors: XsaTi
 </footer>
 
 <!-- SIDE PANEL -->
@@ -137,51 +130,68 @@ Dati no:
 <script>
 /* ===== ИНИЦИАЛИЗАЦИЯ КАРТЫ ===== */
 const map = L.map('map').setView([42.5, 12.5], 5);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap'
-}).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
 /* ===== ДАННЫЕ РЕГИОНОВ ===== */
 const regions = {
-"Piedmont": {dialect:"Pjemontes dialekts", pop:"4.36M", dialectUsers:"1.2M", info:"Ziemeļrietumu Itālija, galvenokārt Torino."},
-"Lombardy": {dialect:"Lombardes dialekts", pop:"10.06M", dialectUsers:"2.8M", info:"Milāna – Itālijas finanšu un industriālais centrs."},
-"Veneto": {dialect:"Venetiešu dialekts", pop:"4.85M", dialectUsers:"1.5M", info:"Venēcija, Verona, Adrijas piekraste."},
-"Tuscany": {dialect:"Toskānas dialekts", pop:"3.69M", dialectUsers:"1.1M", info:"Standarta itāļu valodas pamats."},
-"Lazio": {dialect:"Romas dialekts", pop:"5.87M", dialectUsers:"2M", info:"Roma – Itālijas galvaspilsēta."},
-"Campania": {dialect:"Neapoles dialekts", pop:"5.63M", dialectUsers:"2.3M", info:"Neapole un Amalfi piekraste."},
-"Sicily": {dialect:"Sicīliešu dialekts", pop:"4.85M", dialectUsers:"1.9M", info:"Lielākā Vidusjūras sala."},
-"Sardinia": {dialect:"Sardu valoda", pop:"1.6M", dialectUsers:"0.7M", info:"Ļoti atšķirīga no itāļu valodas."},
-"Friuli-Venezia Giulia": {dialect:"Furlāņu dialekts", pop:"1.2M", dialectUsers:"0.5M", info:"Austrumu pierobeža ar Slovēniju."},
-"Aosta Valley": {dialect:"Valdostā dialekts", pop:"0.125M", dialectUsers:"0.05M", info:"Franču un itāļu ietekme."},
-"Trentino-Alto Adige": {dialect:"Tiroļu dialekts", pop:"1.07M", dialectUsers:"0.3M", info:"Vācu un itāļu valodu maisījums."},
-"Liguria": {dialect:"Ligūrijas dialekts", pop:"1.5M", dialectUsers:"0.4M", info:"Ģenova un piekraste."},
-"Emilia-Romagna": {dialect:"Emīlijas dialekts", pop:"4.4M", dialectUsers:"1.2M", info:"Boloņa, Parmezāns, makaronu dzimtene."},
-"Marche": {dialect:"Markes dialekts", pop:"1.5M", dialectUsers:"0.45M", info:"Adrijas piekraste, kalnains iekšzemes reģions."},
-"Umbria": {dialect:"Umbrijas dialekts", pop:"0.88M", dialectUsers:"0.3M", info:"Vidus Itālija, kalnains reģions."},
-"Abruzzo": {dialect:"Abrucu dialekts", pop:"1.3M", dialectUsers:"0.4M", info:"Kalnu piekraste un Parco Nazionale."},
-"Molise": {dialect:"Molises dialekts", pop:"0.3M", dialectUsers:"0.1M", info:"Mazākais Itālijas reģions."},
-"Basilicata": {dialect:"Basilikātas dialekts", pop:"0.54M", dialectUsers:"0.15M", info:"Dienvidu kalni, retāk apdzīvots."},
-"Apulia": {dialect:"Apūlijas dialekts", pop:"4M", dialectUsers:"1.2M", info:"Itālijas 'papēdis'."},
-"Calabria": {dialect:"Kalabrijas dialekts", pop:"1.9M", dialectUsers:"0.6M", info:"Dienvidu gals, kalnaina piekraste."}
+"Piedmont": {dialect:"Pjemontes dialekts", population:"4.36 miljoni", info:"Ziemeļrietumu reģions."},
+"Lombardy": {dialect:"Lombardes dialekts", population:"10.06 miljoni", info:"Milāna – Itālijas finanšu centrs."},
+"Veneto": {dialect:"Venetiešu dialekts", population:"4.85 miljoni", info:"Venēcija, Verona."},
+"Tuscany": {dialect:"Toskānas dialekts", population:"3.69 miljoni", info:"Standarta itāļu valodas pamats."},
+"Lazio": {dialect:"Romas dialekts", population:"5.87 miljoni", info:"Roma – Itālijas galvaspilsēta."},
+"Campania": {dialect:"Neapoles dialekts", population:"5.63 miljoni", info:"Neapole un Amalfi piekraste."},
+"Sicily": {dialect:"Sicīlijas dialekts", population:"4.85 miljoni", info:"Lielākā Vidusjūras sala."},
+"Sardinia": {dialect:"Sardu valoda", population:"1.6 miljoni", info:"Ļoti unikāls dialekts."},
+"Friuli-Venezia Giulia": {dialect:"Furlāņu dialekts", population:"1.2 miljoni", info:"Austrumu pierobeža."},
+"Aosta Valley": {dialect:"Valdostā dialekts", population:"125 tūkstoši", info:"Franču ietekme."},
+"Trentino-Alto Adige": {dialect:"Tiroļu dialekts", population:"1.07 miljoni", info:"Vācu/itāļu valodu mix."},
+"Liguria": {dialect:"Ligūrijas dialekts", population:"1.5 miljoni", info:"Ģenova un piekraste."},
+"Emilia-Romagna": {dialect:"Emīlijas dialekts", population:"4.4 miljoni", info:"Boloņa, Parmezāns."},
+"Marche": {dialect:"Markes dialekts", population:"1.5 miljoni", info:"Adrijas piekraste."},
+"Umbria": {dialect:"Umbrijas dialekts", population:"880 tūkstoši", info:"Kalnains reģions."},
+"Abruzzo": {dialect:"Abrucu dialekts", population:"1.3 miljoni", info:"Kalnu piekraste."},
+"Molise": {dialect:"Molises dialekts", population:"300 tūkstoši", info:"Mazākais reģions."},
+"Basilicata": {dialect:"Basilikātas dialekts", population:"540 tūkstoši", info:"Dienvidu kalni."},
+"Apulia": {dialect:"Apūlijas dialekts", population:"4 miljoni", info:"Itālijas 'papēdis'."},
+"Calabria": {dialect:"Kalabrijas dialekts", population:"1.9 miljoni", info:"Dienvidu gals."}
 };
 
 /* ===== ЦВЕТА ===== */
 function getColor() {
-    const colors = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93","#6a9fb5","#ff7f50"];
-    return colors[Math.floor(Math.random()*colors.length)];
+    const c = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"];
+    return c[Math.floor(Math.random()*c.length)];
 }
 
-/* ===== GEOJSON ДЛЯ РЕГИОНОВ ===== */
-const geoJSON = {/* твоё geoJSON с нормальными границами */};
+/* ===== ГЕОМЕТРИЯ РЕГИОНОВ ===== */
+const geoJSON = {
+"type":"FeatureCollection",
+"features":[
+{"type":"Feature","properties":{"name":"Piedmont"},"geometry":{"type":"Polygon","coordinates":[[[6.5,45],[7.7,45],[7.7,46.3],[6.5,46.3]]] }},
+{"type":"Feature","properties":{"name":"Lombardy"},"geometry":{"type":"Polygon","coordinates":[[[8.8,45],[10.6,45],[10.6,46.3],[8.8,46.3]]] }},
+{"type":"Feature","properties":{"name":"Veneto"},"geometry":{"type":"Polygon","coordinates":[[[10.8,44.8],[12.6,44.8],[12.6,46.2],[10.8,46.2]]] }},
+{"type":"Feature","properties":{"name":"Tuscany"},"geometry":{"type":"Polygon","coordinates":[[[9.5,42.4],[11.4,42.4],[11.4,44.1],[9.5,44.1]]] }},
+{"type":"Feature","properties":{"name":"Lazio"},"geometry":{"type":"Polygon","coordinates":[[[11.3,40.7],[13.3,40.7],[13.3,42.5],[11.3,42.5]]] }},
+{"type":"Feature","properties":{"name":"Campania"},"geometry":{"type":"Polygon","coordinates":[[[13.4,39.7],[15.3,39.7],[15.3,41.3],[13.4,41.3]]] }},
+{"type":"Feature","properties":{"name":"Sicily"},"geometry":{"type":"Polygon","coordinates":[[[12.3,36.6],[15.5,36.6],[15.5,38.2],[12.3,38.2]]] }},
+{"type":"Feature","properties":{"name":"Sardinia"},"geometry":{"type":"Polygon","coordinates":[[[7.9,38.6],[9.8,38.6],[9.8,41.4],[7.9,41.4]]] }},
+{"type":"Feature","properties":{"name":"Friuli-Venezia Giulia"},"geometry":{"type":"Polygon","coordinates":[[[12.6,45.5],[13.7,45.5],[13.7,46.6],[12.6,46.6]]] }},
+{"type":"Feature","properties":{"name":"Aosta Valley"},"geometry":{"type":"Polygon","coordinates":[[[6.9,45.4],[7.6,45.4],[7.6,46.1],[6.9,46.1]]] }},
+{"type":"Feature","properties":{"name":"Trentino-Alto Adige"},"geometry":{"type":"Polygon","coordinates":[[[10.6,45.9],[12.1,45.9],[12.1,46.9],[10.6,46.9]]] }},
+{"type":"Feature","properties":{"name":"Liguria"},"geometry":{"type":"Polygon","coordinates":[[[7.6,43.7],[9.4,43.7],[9.4,44.7],[7.6,44.7]]] }},
+{"type":"Feature","properties":{"name":"Emilia-Romagna"},"geometry":{"type":"Polygon","coordinates":[[[9.7,44.1],[12.1,44.1],[12.1,45.1],[9.7,45.1]]] }},
+{"type":"Feature","properties":{"name":"Marche"},"geometry":{"type":"Polygon","coordinates":[[[12.2,43],[13.7,43],[13.7,44.3],[12.2,44.3]]] }},
+{"type":"Feature","properties":{"name":"Umbria"},"geometry":{"type":"Polygon","coordinates":[[[11.7,42.5],[12.8,42.5],[12.8,43.6],[11.7,43.6]]] }},
+{"type":"Feature","properties":{"name":"Abruzzo"},"geometry":{"type":"Polygon","coordinates":[[[13,41.8],[14.4,41.8],[14.4,43],[13,43]]] }},
+{"type":"Feature","properties":{"name":"Molise"},"geometry":{"type":"Polygon","coordinates":[[[14.4,41.4],[15.1,41.4],[15.1,42.1],[14.4,42.1]]] }},
+{"type":"Feature","properties":{"name":"Basilicata"},"geometry":{"type":"Polygon","coordinates":[[[15,40.2],[16.5,40.2],[16.5,41.3],[15,41.3]]] }},
+{"type":"Feature","properties":{"name":"Apulia"},"geometry":{"type":"Polygon","coordinates":[[[15.9,40],[17.2,40],[17.2,41.6],[15.9,41.6]]] }},
+{"type":"Feature","properties":{"name":"Calabria"},"geometry":{"type":"Polygon","coordinates":[[[15.6,37.9],[16.4,37.9],[16.4,39.6],[15.6,39.6]]] }}
+]
+};
 
-/* ===== ДОБАВЛЕНИЕ ПОЛИГОНОВ ===== */
+/* ===== ПОЛИГОНЫ ===== */
 L.geoJSON(geoJSON, {
-    style: () => ({
-        color:'#0044aa',
-        weight:3,
-        fillColor:getColor(),
-        fillOpacity:0.45,
-    }),
+    style: () => ({ color:'#0044aa', weight:3, fillColor:getColor(), fillOpacity:0.45 }),
     onEachFeature: (feature, layer) => {
         layer.on("mouseover", () => layer.setStyle({weight:5, fillOpacity:0.65}));
         layer.on("mouseout", () => layer.setStyle({weight:3, fillOpacity:0.45}));
@@ -191,30 +201,22 @@ L.geoJSON(geoJSON, {
             layer.bindPopup(`
                 <div class="custom-popup">
                     <h3>${n}</h3>
-                    <p><b>Iedzīvotāji:</b> ${r.pop}</p>
-                    <p><b>Dialekta runātāji:</b> ${r.dialectUsers}</p>
                     <p><b>Dialekts:</b> ${r.dialect}</p>
-                    <p>${r.info}</p>
+                    <p><b>Iedzīvotāji:</b> ${r.population}</p>
+                    <p><b>Info:</b> ${r.info}</p>
                 </div>
             `).openPopup();
         });
     }
 }).addTo(map);
 
-/* ===== SIDE PANEL LOGIC ===== */
+/* ===== SIDE PANEL ===== */
 document.getElementById("dialectsBtn").onclick = () => {
     const list = document.getElementById("dialectList");
     list.innerHTML = "";
-    for(const name in regions) {
+    for (const name in regions) {
         const r = regions[name];
-        list.innerHTML += `
-            <li>
-                <b>${name}</b><br>
-                Iedzīvotāji: ${r.pop}<br>
-                Dialekta runātāji: ${r.dialectUsers}<br>
-                <b>${r.dialect}</b> — ${r.info}
-            </li><br>
-        `;
+        list.innerHTML += `<li><b>${name}:</b> ${r.dialect} — ${r.population} — ${r.info}</li>`;
     }
     document.getElementById("sidePanel").classList.add("show");
 };
