@@ -2,44 +2,68 @@
 <html lang="lv">
 <head>
 <meta charset="UTF-8">
-<title>Avoti</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avoti - Itālijas dialekti</title>
 <style>
 body {
-    font-family: Arial;
+    font-family: Arial, sans-serif;
+    margin:0; padding:0;
     background:#f5f5f5;
-    padding: 40px;
-    text-align: center;
+    color:#222;
 }
-a { color:#4b8bbe; }
-.box {
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 0 15px rgba(0,0,0,0.15);
-    max-width: 600px;
-    margin: auto;
-}
-button {
-    margin-top:20px;
+header {
     background:#4b8bbe;
     color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:6px;
-    cursor:pointer;
+    text-align:center;
+    padding:20px 10px;
+}
+h1 { margin:0; font-size:1.6em; }
+main {
+    max-width:900px;
+    margin:20px auto;
+    padding:0 15px;
+}
+ul { padding-left:20px; }
+li { margin-bottom:10px; line-height:1.4; }
+a { color:#4b8bbe; text-decoration:none; }
+a:hover { text-decoration:underline; }
+footer {
+    text-align:center;
+    padding:15px;
+    background:#222;
+    color:#eee;
+    font-size:0.9em;
+    margin-top:30px;
+}
+
+/* MOBILE */
+@media screen and (max-width:768px) {
+    header { padding:15px 5px; }
+    h1 { font-size:1.3em; }
+    main { padding:0 10px; }
 }
 </style>
 </head>
-
 <body>
-<div class="box">
-<h2>Avoti</h2>
-<p>🇮🇹 ISTAT – Itālijas statistikas birojs</p>
-<p>🇮🇹 OpenPolis – oficiālās administratīvās robežas</p>
-<p>📘 Linguistic Atlas of Italy (ALI)</p>
-<p>📗 Università di Firenze – Dialektoloģijas pētījumi</p>
 
-<button onclick="window.location.href='index.html'">Atpakaļ</button>
-</div>
+<header>
+<h1>Avoti - Itālijas dialekti</h1>
+</header>
+
+<main>
+<h2>Izmantotie avoti</h2>
+<ul>
+<li><a href="https://www.istat.it/en/" target="_blank">ISTAT – Itālijas nacionālā statistikas aģentūra</a></li>
+<li><a href="https://www.ethnologue.com/" target="_blank">Ethnologue – Valodu enciklopēdija</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Italian_dialects" target="_blank">Wikipedia – Italian dialects</a></li>
+<li><a href="https://www.linguisticanet.it/" target="_blank">Linguistica.net – Lingvistikas pētījumi Itālijā</a></li>
+<li><a href="https://www.treccani.it/" target="_blank">Treccani – Itālijas enciklopēdija</a></li>
+</ul>
+</main>
+
+<footer>
+Autors: XsaTi | Visas tiesības aizsargātas
+</footer>
+
 </body>
 </html>
