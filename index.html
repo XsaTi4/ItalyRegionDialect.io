@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="lv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Itālijas dialekti</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background:#f5f5f5;
+}
+
+/* ===== HEADER ===== */
+header {
+    background: #4b8bbe;
+    color: white;
+    text-align: center;
+    padding: 20px;
+    position: relative;
+}
+h1 { margin: 0; }
+
+#dialectsBtn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    padding: 10px 15px;
+    background:#fff;
+    color:#4b8bbe;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+#dialectsBtn:hover { background:#e0e0e0; }
+
+/* ===== MAP ===== */
+#map {
+    height: 80vh;
+    width: 95%;
+    margin: 20px auto;
+    border-radius:10px;
+    box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+/* ===== SIDE PANEL ===== */
+#sidePanel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 350px;
+    height: 100%;
+    background: white;
+    box-shadow: -5px 0 15px rgba(0,0,0,0.3);
+    padding: 20px;
+    transition: 0.4s ease;
+    overflow-y: auto;
+    z-index: 999;
+}
+#sidePanel.show { right: 0; }
+
+#sidePanel h2 { margin-top: 0; }
+
+#closePanel {
+    background:#4b8bbe;
+    color:white;
+    border:none;
+    border-radius:5px;
+    padding:10px;
+    cursor:pointer;
+    width:100%;
+    margin-top:10px;
+}
+
+/* ===== POPUP ===== */
+.custom-popup {
+    font-size: 14px;
+    line-height: 1.3;
+}
+.custom-popup h3 {
+    margin: 0 0 5px;
+    color: #4b8bbe;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    text-align: center;
+    padding: 15px;
+    background: #222;
+    color: #eee;
+    font-size: 0.9em;
+}
+
+/* ===== MOBILE ADAPTATION ===== */
+@media screen and (max-width: 768px) {
+    #map { height: 60vh; width: 95%; margin: 15px auto; }
+    #sidePanel { width: 100%; }
+    #dialectsBtn { padding: 8px 12px; font-size: 14px; }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Itālijas dialekti</h1>
+<button id="dialectsBtn">Dialekti & Info</button>
+</header>
+
+<div id="map"></div>
+
+<footer>
+Dati no: <a href="sources.html" style="color:#4b8bbe;">ISTAT & lingvistikas pētījumi</a> | Autors: XsaTi
+</footer>
+
+<!-- ===== SIDE PANEL ===== -->
+<div id="sidePanel">
+<h2>Dialekti un informācija</h2>
+<ul id="dialectList"></ul>
+<button id="closePanel">Aizvērt</button>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ===== ИНИЦИАЛИЗАЦИЯ КАРТЫ =====
+const map = L.map("map").setView([42.5, 12.5], 5);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: "© OpenStreetMap" }).addTo(map);
+
+// ===== ДАННЫЕ РЕГИОНОВ =====
+const regions = {
+    "Piemonte": { pop:"4.3 milj.", dialectUsers:"≈2.1 milj.", dialect:"Pjemontes dialekts", info:"Rietumu retoromāņu dialekts ar franču ietekmi." },
+    "Lombardia": { pop:"10 milj.", dialectUsers:"≈3.2 milj.", dialect:"Lombardes dialekts", info:"Cēlies no Gallo-Italiešu grupas, plaši lietots Milānā." },
+    "Veneto": { pop:"4.9 milj.", dialectUsers:"≈3.6 milj.", dialect:"Venetiešu dialekts", info:"Ļoti izplatīts, atšķirīgs no Gallo-Italiešu valodām." },
+    "Toscana": { pop:"3.7 milj.", dialectUsers:"≈2.1 milj.", dialect:"Toskānas dialekts", info:"Pamats modernajai itāļu valodai." },
+    "Lazio": { pop:"5.9 milj.", dialectUsers:"≈2.3 milj.", dialect:"Romas dialekts", info:"Centrālās Itālijas dialekts ar sena romiešu valodas ietekmi." },
+    "Campania": { pop:"5.8 milj.", dialectUsers:"≈4 milj.", dialect:"Neapoles dialekts", info:"Dienvidos populārākais dialekts, atšķiras fonētikā." },
+    "Sicilia": { pop:"5 milj.", dialectUsers:"≈3.5 milj.", dialect:"Sicīliešu dialekts", info:"Spēcīgas senās grieķu un arābu saknes." },
+    "Sardegna": { pop:"1.6 milj.", dialectUsers:"≈1 milj.", dialect:"Sardu valoda", info:"Ļoti sena romāņu valoda — tuvāka latīņu nekā itāļu." },
+    "Friuli-Venezia Giulia": { pop:"1.2 milj.", dialectUsers:"≈0.8 milj.", dialect:"Furlāņu dialekts", info:"Ziemeļaustrumu dialekts ar slovēņu ietekmi." },
+    "Valle d'Aosta": { pop:"0.13 milj.", dialectUsers:"≈0.08 milj.", dialect:"Valdostā dialekts", info:"Franču un arpitāņu ietekme." },
+    "Trentino-Alto Adige": { pop:"1.1 milj.", dialectUsers:"≈0.5 milj.", dialect:"Tiroļu dialekts", info:"Vācu un ladīņu ietekme." },
+    "Liguria": { pop:"1.5 milj.", dialectUsers:"≈0.9 milj.", dialect:"Ligūrijas dialekts", info:"Piekrastes dialekts ar franču ietekmi." },
+    "Emilia-Romagna": { pop:"4.5 milj.", dialectUsers:"≈2.8 milj.", dialect:"Emīlijas dialekts", info:"Makaronu dzimtene 😎." },
+    "Marche": { pop:"1.5 milj.", dialectUsers:"≈1 milj.", dialect:"Markes dialekts", info:"Adrijas jūras piekraste." },
+    "Umbria": { pop:"0.9 milj.", dialectUsers:"≈0.5 milj.", dialect:"Umbrijas dialekts", info:"Vidus Itālija, līdzīgs Toskānai." },
+    "Abruzzo": { pop:"1.3 milj.", dialectUsers:"≈0.8 milj.", dialect:"Abrucu dialekts", info:"Kalnains reģions ar tradicionāliem dialektiem." },
+    "Molise": { pop:"0.3 milj.", dialectUsers:"≈0.2 milj.", dialect:"Molises dialekts", info:"Mazs reģions ar vietējiem dialektiem." },
+    "Basilicata": { pop:"0.6 milj.", dialectUsers:"≈0.4 milj.", dialect:"Basilikātas dialekts", info:"Dienvidu Itālija, tradicionālie dialekti." },
+    "Puglia": { pop:"4.0 milj.", dialectUsers:"≈2.7 milj.", dialect:"Apūlijas dialekts", info:"Itālijas 'papēdis', spēcīga dienvidu ietekme." },
+    "Calabria": { pop:"1.9 milj.", dialectUsers:"≈1.4 milj.", dialect:"Kalabrijas dialekts", info:"Dienvidu gals, ar senām grieķu saknēm." }
+};
+
+// ===== LOAD GEOJSON =====
+fetch("https://raw.githubusercontent.com/openpolis/geojson-italy/master/geojson/limits_IT_regions.geojson")
+.then(r=>r.json())
+.then(data => {
+    L.geoJSON(data, {
+        style: { color:"#0044aa", weight:2.5, fillColor:"#89c2ff", fillOpacity:0.45 },
+        onEachFeature: (feature, layer) => {
+            const name = feature.properties.reg_name;
+            const r = regions[name];
+
+            layer.on("mouseover", () => layer.setStyle({ weight:4, fillOpacity:0.65 }));
+            layer.on("mouseout", () => layer.setStyle({ weight:2.5, fillOpacity:0.45 }));
+
+            layer.on("click", () => {
+                if (!r) return;
+                layer.bindPopup(`
+                    <div class="custom-popup">
+                        <h3>${name}</h3>
+                        <p><b>Iedzīvotāji:</b> ${r.pop}</p>
+                        <p><b>Dialekta runātāji:</b> ${r.dialectUsers}</p>
+                        <p><b>Dialekts:</b> ${r.dialect}</p>
+                        <p><b>Info:</b> ${r.info}</p>
+                    </div>
+                `).openPopup();
+            });
+        }
+    }).addTo(map);
+});
+
+// ===== SIDE PANEL BUTTON =====
+document.getElementById("dialectsBtn").onclick = () => {
+    const list = document.getElementById("dialectList");
+    list.innerHTML = "";
+
+    for (const name in regions) {
+        const r = regions[name];
+        list.innerHTML += `
+            <li>
+                <b>${name}</b><br>
+                Iedzīvotāji: ${r.pop}<br>
+                Dialekta runātāji: ${r.dialectUsers}<br>
+                <b>${r.dialect}</b> — ${r.info}
+            </li><br>
+        `;
+    }
+    document.getElementById("sidePanel").classList.add("show");
+};
+
+// CLOSE PANEL
+document.getElementById("closePanel").onclick = () => {
+    document.getElementById("sidePanel").classList.remove("show");
+};
+</script>
+</body>
+</html>
